@@ -1,0 +1,15 @@
+# Steam MM Pipeline — Python Dependencies
+
+# Core
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# DEMO Parsing
+# awpy — CS2 Demo Parser
+# Requires C++ build tools on Windows (Microsoft Visual C++ 14.0+)
+# If installation fails, try: pip install --upgrade setuptools wheel
+awpy>=1.5.0
+
+# Alternative DEMO parsers (optional)
+# vdf>=4.3.0  # Valve KeyValue format
+# protobuf>=4.0.0  # For CS2 protobuf messages

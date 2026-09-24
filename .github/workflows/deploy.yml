@@ -1,0 +1,45 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Build Frontend
+        run: |
+          cd steam-mm-dashboard
+          npm install
+          npm run build
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Test Backend
+        run: |
+          cd steam-mm-pipeline
+          pip install -r requirements-api.txt
+          python -m py_compile api.py auth.py
+
+      - name: Deploy to Railway
+        run: |
+          npx railway deploy --service steam-mm-pipeline
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Deploy to Vercel
+        run: |
+          npm install -g vercel
+          vercel deploy --prod --token ${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./steam-mm-dashboard

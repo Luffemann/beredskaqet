@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ThemeToggle } from './ThemeToggle';
+import { login } from '../services/api';
 
 interface LoginPageProps {
   onLoginSuccess: (token: string, playerName: string) => void;
@@ -21,24 +22,12 @@ export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ steam_id: id }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
-
-      const data = await response.json();
+      const data = await login(id);
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('player_name', data.player_name);
       onLoginSuccess(data.access_token, data.player_name);
     } catch (err) {
-      setError('Login failed. Make sure API server is running at http://localhost:8000');
+      setError('Login failed. Check API connection.');
       console.error('Login error:', err);
     } finally {
       setLoading(false);
@@ -109,7 +98,7 @@ export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
 
           {/* Footer */}
           <p className="text-gray-500 text-xs text-center mt-6">
-            API: http://localhost:8000 | Demo mode (development)
+            Connected to: beredskaqet.dk/api-server
           </p>
         </div>
       </div>

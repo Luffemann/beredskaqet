@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beredskaqet - Vi åbner officielt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0b0c10 0%, #1f2833 100%);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-section {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .logo {
+            width: 400px;
+            height: auto;
+            filter: drop-shadow(0 0 30px rgba(255, 85, 0, 0.6));
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stamp {
+            position: relative;
+            font-size: 48px;
+            font-weight: bold;
+            color: #ff5500;
+            text-align: center;
+            transform: rotate(-15deg);
+            border: 4px solid #ff5500;
+            padding: 20px 40px;
+            background: rgba(255, 85, 0, 0.1);
+            box-shadow: 0 0 20px rgba(255, 85, 0, 0.8);
+            letter-spacing: 2px;
+            animation: stampBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes stampBounce {
+            0%, 100% { transform: rotate(-15deg) scale(1); }
+            50% { transform: rotate(-15deg) scale(1.1); }
+        }
+
+        .opening-text {
+            margin-top: 20px;
+            font-size: 28px;
+            color: #45f3ff;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(69, 243, 255, 0.6);
+            letter-spacing: 1px;
+        }
+
+        .date {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ff5500;
+            margin-top: 10px;
+            text-shadow: 0 0 15px rgba(255, 85, 0, 0.8);
+        }
+
+        .countdown {
+            margin-top: 40px;
+            font-size: 18px;
+            color: #a0a0a0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                width: 250px;
+            }
+
+            .stamp {
+                font-size: 28px;
+                padding: 15px 30px;
+                transform: rotate(-15deg);
+            }
+
+            .opening-text {
+                font-size: 18px;
+            }
+
+            .date {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-section">
+            <img src="/beredskaqet_logo_beskaarret.png" alt="Beredskaqet Logo" class="logo">
+
+            <div style="text-align: center;">
+                <div class="stamp">VI ÅBNER OFFICIELT</div>
+                <div class="date">TORSDAG 1. OKTOBER 2026</div>
+            </div>
+
+            <div class="opening-text">
+                Beredskaqet Gaming Hub er klar
+                <div class="countdown">
+                    <p>Velkommen til CS2 statistik, progression tracking og personlige dashboards</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

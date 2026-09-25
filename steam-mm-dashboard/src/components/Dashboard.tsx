@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { fetchPlayerStats } from '../services/airtable';
-import type { PlayerStats } from '../services/airtable';
+import { getPlayerStats } from '../services/api';
 import { KDTrendChart } from './KDTrendChart';
 import { HSProgressBar } from './HSProgressBar';
 import { HeadToHeadDisplay } from './HeadToHeadDisplay';
@@ -14,22 +13,46 @@ interface DashboardProps {
 }
 
 export const Dashboard = ({ playerName, onLogout }: DashboardProps) => {
-  const [stats, setStats] = useState<PlayerStats[]>([]);
+  const [stats, setStats] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'progression' | 'h2h' | 'achievements'>('overview');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const loadStats = async () => {
       setLoading(true);
-      const data = await fetchPlayerStats(playerName);
-      setStats(data);
-      setLoading(false);
+      setError('');
+      try {
+        const data = await getPlayerStats(playerName);
+        setStats(data.recent_matches || []);
+      } catch (err) {
+        setError('Failed to load player stats');
+        console.error('Load stats error:', err);
+      } finally {
+        setLoading(false);
+      }
     };
     loadStats();
   }, [playerName]);
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen text-primary">Loading...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="bg-red-900 bg-opacity-30 border border-red-600 rounded p-6 max-w-md">
+          <p className="text-red-200">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-sm font-semibold"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // Memoize computed values for performance

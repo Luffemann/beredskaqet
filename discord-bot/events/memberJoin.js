@@ -12,10 +12,19 @@ module.exports = {
         return;
       }
 
-      // Send welcome message to #mine_data with Steam ID prompt
+      // Send welcome message to #mine_data with Steam OAuth button
+      const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+
+      const steamButton = new ButtonBuilder()
+        .setLabel('🔓 Login med Steam')
+        .setStyle(ButtonStyle.Link)
+        .setURL(`https://beredskaqet.dk/api-server/auth/steam/login?discord_id=${member.id}&guild_id=${member.guild.id}`);
+
+      const row = new ActionRowBuilder().addComponents(steamButton);
+
       const welcomeMessage = await channel.send({
-        content: `👋 **Velkommen ${member}!**\n\nFor at få fuld adgang til Beredskaqet CS2 Club skal du bekræfte din Steam ID.\n\n**Brug denne kommando:**\n\`/steam-verify <din_steam_id>\`\n\n**Hvor finder du din Steam ID?**\n→ Gå til https://steamid.io\n→ Søg efter dit Steam-navn\n→ Kopier det 17-cifrede tal (ID3 eller ID64)\n\n**Eksempel:**\n\`/steam-verify 76561198111111111\`\n\nEfter verificering får du adgang til matcher, stats og leaderboard! 🎮`,
-        reply: { messageReference: null }
+        content: `👋 **Velkommen ${member}!**\n\nFor at få fuld adgang til Beredskaqet CS2 Club skal du bekræfte din Steam ID.\n\n**Klik knappen nedenfor for at logge ind med Steam:**`,
+        components: [row]
       });
 
       console.log(`✅ Welcome message sent to ${member.user.tag} in #mine_data`);

@@ -247,5 +247,102 @@ def get_weekly_stats():
         "generated": datetime.now().isoformat(),
     })
 
+# Steam OAuth Login
+@app.route('/auth/steam/login', methods=['GET'])
+@app.route('/api/auth/steam/login', methods=['GET'])
+def steam_login():
+    """Redirect to Steam OpenID login"""
+    discord_id = request.args.get('discord_id', '')
+    guild_id = request.args.get('guild_id', '')
+
+    # Steam OpenID endpoint
+    steam_openid_url = "https://steamcommunity.com/openid/login"
+
+    # Callback URL (must be registered with Steam)
+    return_to = f"https://beredskaqet.dk/api-server/auth/steam/callback?discord_id={discord_id}&guild_id={guild_id}"
+
+    params = {
+        "openid.ns": "http://specs.openid.net/auth/2.0",
+        "openid.identity": "http://specs.openid.net/auth/2.0/identifier_select",
+        "openid.claimed_id": "http://specs.openid.net/auth/2.0/identifier_select",
+        "openid.mode": "checkid_setup",
+        "openid.return_to": return_to,
+        "openid.realm": "https://beredskaqet.dk",
+    }
+
+    query_string = "&".join([f"{k}={v}" for k, v in params.items()])
+    redirect_url = f"{steam_openid_url}?{query_string}"
+
+    return {
+        "redirect_url": redirect_url,
+        "message": "Redirect to Steam login"
+    }, 200, {"Location": redirect_url}
+
+# Steam OAuth Callback
+@app.route('/auth/steam/callback', methods=['GET'])
+@app.route('/api/auth/steam/callback', methods=['GET'])
+def steam_callback():
+    """Handle Steam OpenID callback"""
+    from urllib.parse import urlencode
+
+    discord_id = request.args.get('discord_id', '')
+    guild_id = request.args.get('guild_id', '')
+
+    # Verify OpenID response
+    if request.args.get('openid.mode') != 'id_res':
+        return jsonify({"error": "OpenID response validation failed"}), 400
+
+    # Get Steam ID from OpenID response
+    identity = request.args.get('openid.claimed_id', '')
+    try:
+        steam_id = identity.split('/')[-1]
+    except:
+        return jsonify({"error": "Could not extract Steam ID"}), 400
+
+    # Verify OpenID signature with Steam
+    verify_params = {
+        "openid.ns": request.args.get('openid.ns'),
+        "openid.identity": request.args.get('openid.identity'),
+        "openid.claimed_id": request.args.get('openid.claimed_id'),
+        "openid.mode": "check_auth",
+        "openid.return_to": request.args.get('openid.return_to'),
+        "openid.response_nonce": request.args.get('openid.response_nonce', ''),
+        "openid.assoc_handle": request.args.get('openid.assoc_handle', ''),
+        "openid.signed": request.args.get('openid.signed', ''),
+        "openid.sig": request.args.get('openid.sig', ''),
+    }
+
+    try:
+        verify_response = requests.post(
+            "https://steamcommunity.com/openid/login",
+            data=verify_params,
+            timeout=10
+        )
+
+        if b'is_valid:true' not in verify_response.content:
+            return jsonify({"error": "Steam OpenID signature verification failed"}), 400
+    except Exception as e:
+        return jsonify({"error": f"OpenID verification error: {str(e)}"}), 500
+
+    # Get Steam profile
+    steam_profile = get_steam_profile(steam_id)
+    if not steam_profile:
+        return jsonify({"error": "Could not fetch Steam profile"}), 400
+
+    # Create JWT token
+    token = create_access_token(steam_id, steam_profile['player_name'])
+
+    # TODO: Send Discord webhook to bot with verification
+    # For now, redirect to success page
+    return jsonify({
+        "success": True,
+        "steam_id": steam_id,
+        "player_name": steam_profile['player_name'],
+        "token": token,
+        "discord_id": discord_id,
+        "guild_id": guild_id,
+        "message": "Steam ID verified! You can now close this window."
+    }), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=False)

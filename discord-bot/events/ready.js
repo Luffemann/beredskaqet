@@ -12,16 +12,27 @@ module.exports = {
     const commands = [];
     const commandsPath = path.join(__dirname, '..', 'commands');
 
+    console.log(`[DEBUG] Looking for commands in: ${commandsPath}`);
+    console.log(`[DEBUG] __dirname: ${__dirname}`);
+
     if (fs.existsSync(commandsPath)) {
       const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+      console.log(`[DEBUG] Found ${commandFiles.length} command files: ${commandFiles.join(', ')}`);
 
       for (const file of commandFiles) {
         const filePath = path.join(commandsPath, file);
-        const command = require(filePath);
-        if (command.data) {
-          commands.push(command.data.toJSON());
+        try {
+          const command = require(filePath);
+          if (command.data) {
+            commands.push(command.data.toJSON());
+            console.log(`[DEBUG] ✓ Loaded command: ${file}`);
+          }
+        } catch (err) {
+          console.error(`[DEBUG] ✗ Failed to load ${file}:`, err.message);
         }
       }
+    } else {
+      console.error(`[DEBUG] ✗ Commands path does not exist: ${commandsPath}`);
     }
 
     // Deploy slash commands to all guilds
